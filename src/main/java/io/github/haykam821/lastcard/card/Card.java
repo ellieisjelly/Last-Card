@@ -9,33 +9,15 @@ import io.github.haykam821.lastcard.card.color.CardColor;
 import io.github.haykam821.lastcard.card.color.ColorRepresentation;
 import io.github.haykam821.lastcard.card.color.ColorSelector;
 import io.github.haykam821.lastcard.game.player.AbstractPlayerEntry;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemStack.TooltipSection;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
 
 public abstract class Card {
 	private final ColorSelector selector;
 
 	public Card(ColorSelector selector) {
 		this.selector = Objects.requireNonNull(selector);
-	}
-
-	public final ItemStack createStack(AbstractPlayerEntry player) {
-		ItemStackBuilder builder = ItemStackBuilder.of(this.selector.getItem());
-		builder.setName(this.getFullName());
-
-		if (this.canPlay(player)) {
-			builder.addEnchantment(Enchantments.POWER, 1);
-		}
-
-		ItemStack stack = builder.build();
-		stack.getNbt().putInt("HideFlags", TooltipSection.ENCHANTMENTS.getFlag());
-
-		return stack;
 	}
 
 	public abstract Text getName();

@@ -6,8 +6,8 @@ import io.github.haykam821.lastcard.game.phase.LastCardActivePhase;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.common.widget.BossBarWidget;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.common.widget.BossBarWidget;
 
 public class LastPlayedBar {
 	private static final BossBar.Style STYLE = BossBar.Style.PROGRESS;

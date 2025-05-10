@@ -3,10 +3,10 @@ package io.github.haykam821.lastcard.game.player;
 import io.github.haykam821.lastcard.card.display.CardDisplay;
 import io.github.haykam821.lastcard.card.display.player.PrivateCardDisplay;
 import io.github.haykam821.lastcard.game.phase.LastCardActivePhase;
-import net.minecraft.block.entity.SkullBlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import xyz.nucleoid.map_templates.TemplateRegion;
@@ -52,10 +52,9 @@ public class PlayerEntry extends AbstractPlayerEntry {
 	public ItemStack createHeadStack() {
 		ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
 
-		NbtCompound nbt = new NbtCompound();
-		nbt.putString(SkullBlockEntity.SKULL_OWNER_KEY, this.player.getNameForScoreboard());
+		ProfileComponent component = new ProfileComponent(this.player.getGameProfile());
+		stack.set(DataComponentTypes.PROFILE, component);
 
-		stack.setNbt(nbt);
 		return stack;
 	}
 

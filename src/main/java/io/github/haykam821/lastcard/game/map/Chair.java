@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.decoration.InteractionEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -63,7 +64,7 @@ public class Chair extends Spawn {
 	}
 
 	private Entity createMount(ServerWorld world) {
-		InteractionEntity mount = EntityType.INTERACTION.create(world);
+		InteractionEntity mount = EntityType.INTERACTION.create(world, SpawnReason.STRUCTURE);
 		InteractionEntityAccessor accessor = (InteractionEntityAccessor) mount;
 
 		accessor.lastcard$setInteractionWidth(0);

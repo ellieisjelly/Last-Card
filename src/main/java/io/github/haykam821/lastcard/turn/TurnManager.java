@@ -1,7 +1,5 @@
 package io.github.haykam821.lastcard.turn;
 
-import org.joml.Vector3f;
-
 import io.github.haykam821.lastcard.card.color.CardColor;
 import io.github.haykam821.lastcard.card.display.CardDisplay;
 import io.github.haykam821.lastcard.game.phase.LastCardActivePhase;
@@ -16,7 +14,7 @@ public class TurnManager {
 	private static final double PARTICLE_RADIUS = 1.5d;
 	public static final float PARTICLE_SIZE = 0.8f;
 
-	public static final Vector3f BLACK_PARTICLE_COLOR = new Vector3f(0, 0, 0);
+	public static final int BLACK_PARTICLE_COLOR = 0x000000;
 	public static final ParticleEffect NO_COLOR_PARTICLE = CardColor.createParticleEffect(0xDDDDDD);
 
 	private static final double PARTICLE_SPEED = 1 / 15d;

@@ -21,10 +21,7 @@ import io.github.haykam821.lastcard.game.player.AbstractPlayerEntry;
 import io.github.haykam821.lastcard.game.player.PlayerEntry;
 import io.github.haykam821.lastcard.game.player.VirtualPlayerEntry;
 import io.github.haykam821.lastcard.turn.TurnManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -33,32 +30,30 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.GameMode;
 import xyz.nucleoid.map_templates.TemplateRegion;
-import xyz.nucleoid.plasmid.game.GameActivity;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.common.team.GameTeam;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamConfig;
-import xyz.nucleoid.plasmid.game.common.team.GameTeamKey;
-import xyz.nucleoid.plasmid.game.common.team.TeamManager;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerOffer;
-import xyz.nucleoid.plasmid.game.player.PlayerOfferResult;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.GameActivity;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeam;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamConfig;
+import xyz.nucleoid.plasmid.api.game.common.team.GameTeamKey;
+import xyz.nucleoid.plasmid.api.game.common.team.TeamManager;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptor;
+import xyz.nucleoid.plasmid.api.game.player.JoinAcceptorResult;
+import xyz.nucleoid.plasmid.api.game.player.JoinOffer;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
-import xyz.nucleoid.stimuli.event.item.ItemPickupEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
-import xyz.nucleoid.stimuli.event.world.FluidFlowEvent;
 
-public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvents.Destroy, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Offer, PlayerDamageEvent, PlayerDeathEvent, GamePlayerEvents.Remove, FluidFlowEvent, ItemPickupEvent, BlockUseEvent {
+public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvents.Destroy, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Accept, PlayerDamageEvent, PlayerDeathEvent, GamePlayerEvents.Remove, BlockUseEvent {
 	private static final GameTeamKey PLAYERS_KEY = new GameTeamKey("players");
 	private static final GameTeam PLAYERS_TEAM = new GameTeam(PLAYERS_KEY, GameTeamConfig.builder()
 		.setCollision(AbstractTeam.CollisionRule.NEVER)
@@ -89,7 +84,7 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 		this.teams = teams;
 		this.bar = new LastPlayedBar(this, widgets);
 
-		int playerCount = this.gameSpace.getPlayers().size();
+		int playerCount = this.gameSpace.getPlayers().participants().size();
 		this.players = new ArrayList<>(playerCount);
 		this.singleplayer = playerCount == 1;
 
@@ -117,12 +112,11 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 			activity.listen(GameActivityEvents.DESTROY, phase);
 			activity.listen(GameActivityEvents.ENABLE, phase);
 			activity.listen(GameActivityEvents.TICK, phase);
-			activity.listen(GamePlayerEvents.OFFER, phase);
+			activity.listen(GamePlayerEvents.ACCEPT, phase);
+			activity.listen(GamePlayerEvents.OFFER, JoinOffer::acceptSpectators);
 			activity.listen(PlayerDamageEvent.EVENT, phase);
 			activity.listen(PlayerDeathEvent.EVENT, phase);
 			activity.listen(GamePlayerEvents.REMOVE, phase);
-			activity.listen(FluidFlowEvent.EVENT, phase);
-			activity.listen(ItemPickupEvent.EVENT, phase);
 			activity.listen(BlockUseEvent.EVENT, phase);
 		});
 	}
@@ -137,7 +131,7 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 	@Override
 	public void onEnable() {
 		// Randomly assign chairs to players
-		List<ServerPlayerEntity> players = Lists.newArrayList(gameSpace.getPlayers());
+		List<ServerPlayerEntity> players = Lists.newArrayList(gameSpace.getPlayers().participants());
 		Collections.shuffle(players);
 
 		int index = 0;
@@ -170,6 +164,11 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 
 			entry.spawn();
 			index += 1;
+		}
+
+		for (ServerPlayerEntity player : this.gameSpace.getPlayers().spectators()) {
+			this.spawn(player);
+			player.changeGameMode(GameMode.SPECTATOR);
 		}
 
 		// Sort players by turn order
@@ -230,21 +229,21 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 	}
 
 	@Override
-	public PlayerOfferResult onOfferPlayer(PlayerOffer offer) {
-		return this.map.getWaitingSpawn().acceptOffer(offer, this.world, GameMode.SPECTATOR).and(() -> {
-			this.displayAddQueue.add(offer.player());
+	public JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
+		return this.map.getWaitingSpawn().acceptPlayers(acceptor, this.world, GameMode.SPECTATOR).thenRunForEach(player -> {
+			this.displayAddQueue.add(player);
 		});
 	}
 
 	@Override
-	public ActionResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
-		return ActionResult.FAIL;
+	public EventResult onDamage(ServerPlayerEntity player, DamageSource source, float amount) {
+		return EventResult.DENY;
 	}
 
 	@Override
-	public ActionResult onDeath(ServerPlayerEntity player, DamageSource source) {
+	public EventResult onDeath(ServerPlayerEntity player, DamageSource source) {
 		this.spawn(player);
-		return ActionResult.FAIL;
+		return EventResult.DENY;
 	}
 
 	@Override
@@ -268,16 +267,6 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 			this.turnManager.cycleTurn();
 		}
 		this.players.remove(entry);
-	}
-
-	@Override
-	public ActionResult onFluidFlow(ServerWorld world, BlockPos fluidPos, BlockState fluidBlock, Direction flowDirection, BlockPos flowTo, BlockState flowToBlock) {
-		return ActionResult.FAIL;
-	}
-
-	@Override
-	public ActionResult onPickupItem(ServerPlayerEntity player, ItemEntity entity, ItemStack stack) {
-		return ActionResult.FAIL;
 	}
 
 	@Override
@@ -408,9 +397,11 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 		activity.deny(GameRuleType.CRAFTING);
 		activity.deny(GameRuleType.DISMOUNT_VEHICLE);
 		activity.deny(GameRuleType.FALL_DAMAGE);
+		activity.deny(GameRuleType.FLUID_FLOW);
 		activity.deny(GameRuleType.HUNGER);
 		activity.deny(GameRuleType.INTERACTION);
 		activity.deny(GameRuleType.MODIFY_ARMOR);
+		activity.deny(GameRuleType.PICKUP_ITEMS);
 		activity.deny(GameRuleType.PLACE_BLOCKS);
 		activity.deny(GameRuleType.PORTALS);
 		activity.deny(GameRuleType.PVP);

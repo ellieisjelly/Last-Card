@@ -1,6 +1,6 @@
 package io.github.haykam821.lastcard.game;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.haykam821.lastcard.game.player.VirtualPlayerConfig;
@@ -10,13 +10,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.intprovider.ConstantIntProvider;
 import net.minecraft.util.math.intprovider.IntProvider;
 import net.minecraft.world.gen.stateprovider.BlockStateProvider;
-import xyz.nucleoid.plasmid.game.common.config.PlayerConfig;
+import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 
 public class LastCardConfig {
-	public static final Codec<LastCardConfig> CODEC = RecordCodecBuilder.create(instance -> {
+	public static final MapCodec<LastCardConfig> CODEC = RecordCodecBuilder.mapCodec(instance -> {
 		return instance.group(
 			Identifier.CODEC.fieldOf("map").forGetter(LastCardConfig::getMap),
-			PlayerConfig.CODEC.fieldOf("players").forGetter(LastCardConfig::getPlayerConfig),
+			WaitingLobbyConfig.CODEC.fieldOf("players").forGetter(LastCardConfig::getPlayerConfig),
 			VirtualPlayerConfig.CODEC.optionalFieldOf("virtual_players", VirtualPlayerConfig.DEFAULT).forGetter(LastCardConfig::getVirtualPlayers),
 			IntProvider.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantIntProvider.create(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(LastCardConfig::getTicksUntilClose),
 			IntProvider.POSITIVE_CODEC.optionalFieldOf("initial_hand_count", ConstantIntProvider.create(7)).forGetter(LastCardConfig::getInitialHandCount),
@@ -26,14 +26,14 @@ public class LastCardConfig {
 	});
 
 	private final Identifier map;
-	private final PlayerConfig playerConfig;
+	private final WaitingLobbyConfig playerConfig;
 	private final VirtualPlayerConfig virtualPlayers;
 	private final IntProvider ticksUntilClose;
 	private final IntProvider initialHandCount;
 	private final IntProvider timeOfDay;
 	private final BlockStateProvider chairBlock;
 
-	public LastCardConfig(Identifier map, PlayerConfig playerConfig, VirtualPlayerConfig virtualPlayers, IntProvider ticksUntilClose, IntProvider initialHandCount, IntProvider timeOfDay, BlockStateProvider chairBlock) {
+	public LastCardConfig(Identifier map, WaitingLobbyConfig playerConfig, VirtualPlayerConfig virtualPlayers, IntProvider ticksUntilClose, IntProvider initialHandCount, IntProvider timeOfDay, BlockStateProvider chairBlock) {
 		this.map = map;
 		this.playerConfig = playerConfig;
 		this.virtualPlayers = virtualPlayers;
@@ -47,7 +47,7 @@ public class LastCardConfig {
 		return this.map;
 	}
 
-	public PlayerConfig getPlayerConfig() {
+	public WaitingLobbyConfig getPlayerConfig() {
 		return this.playerConfig;
 	}
 
