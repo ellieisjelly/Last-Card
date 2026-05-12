@@ -1,5 +1,6 @@
 package io.github.haykam821.lastcard;
 
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import io.github.haykam821.lastcard.game.LastCardConfig;
 import io.github.haykam821.lastcard.game.phase.LastCardWaitingPhase;
 import net.fabricmc.api.ModInitializer;
@@ -21,7 +22,7 @@ public class Main implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		return;
+		PolymerResourcePackUtils.addModAssets(MOD_ID);
 	}
 
 	public static Identifier identifier(String path) {
