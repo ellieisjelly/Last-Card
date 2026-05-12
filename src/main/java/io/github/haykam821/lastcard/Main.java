@@ -5,8 +5,9 @@ import io.github.haykam821.lastcard.game.phase.LastCardWaitingPhase;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import xyz.nucleoid.plasmid.api.game.GameType;
+import xyz.nucleoid.plasmid.api.game.GameTypes;
 import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 
 public class Main implements ModInitializer {
@@ -16,7 +17,7 @@ public class Main implements ModInitializer {
 	public static final GameRuleType WITHER_ROSE_WITHER_EFFECT = GameRuleType.create();
 
 	private static final Identifier LAST_CARD_ID = Main.identifier("last_card");
-	public static final GameType<LastCardConfig> LAST_CARD_TYPE = GameType.register(LAST_CARD_ID, LastCardConfig.CODEC, LastCardWaitingPhase::open);
+	public static final GameType<LastCardConfig> LAST_CARD_TYPE = GameTypes.register(LAST_CARD_ID, LastCardConfig.CODEC, LastCardWaitingPhase::open);
 
 	@Override
 	public void onInitialize() {
@@ -24,6 +25,6 @@ public class Main implements ModInitializer {
 	}
 
 	public static Identifier identifier(String path) {
-		return Identifier.of(MOD_ID, path);
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 }
