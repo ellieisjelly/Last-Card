@@ -49,7 +49,7 @@ public class WildColorSelector implements ColorSelector {
 
 	@Override
 	public Item getItem() {
-		return Items.WHITE_WOOL;
+		return Items.WOOL.white();
 	}
 
 	@Override

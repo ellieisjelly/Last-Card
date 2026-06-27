@@ -13,10 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 
 public enum CardColor implements ColorRepresentation {
-	RED("red", Items.RED_WOOL, ChatFormatting.RED, BossEvent.BossBarColor.RED, CardTemplates.RED_FRONT, CanvasColor.RED_NORMAL),
-	GREEN("green", Items.GREEN_WOOL, ChatFormatting.GREEN, BossEvent.BossBarColor.GREEN, CardTemplates.GREEN_FRONT, CanvasColor.GREEN_NORMAL),
-	YELLOW("yellow", Items.YELLOW_WOOL, ChatFormatting.YELLOW, BossEvent.BossBarColor.YELLOW, CardTemplates.YELLOW_FRONT, CanvasColor.YELLOW_NORMAL),
-	BLUE("blue", Items.BLUE_WOOL, ChatFormatting.DARK_AQUA, BossEvent.BossBarColor.BLUE, CardTemplates.BLUE_FRONT, CanvasColor.BLUE_NORMAL);
+	RED("red", Items.WOOL.red(), ChatFormatting.RED, BossEvent.BossBarColor.RED, CardTemplates.RED_FRONT, CanvasColor.RED_NORMAL),
+	GREEN("green", Items.WOOL.green(), ChatFormatting.GREEN, BossEvent.BossBarColor.GREEN, CardTemplates.GREEN_FRONT, CanvasColor.GREEN_NORMAL),
+	YELLOW("yellow", Items.WOOL.yellow(), ChatFormatting.YELLOW, BossEvent.BossBarColor.YELLOW, CardTemplates.YELLOW_FRONT, CanvasColor.YELLOW_NORMAL),
+	BLUE("blue", Items.WOOL.blue(), ChatFormatting.DARK_AQUA, BossEvent.BossBarColor.BLUE, CardTemplates.BLUE_FRONT, CanvasColor.BLUE_NORMAL);
 
 	public static final CardColor[] VALUES = CardColor.values();
 

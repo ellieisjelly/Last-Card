@@ -21,6 +21,10 @@ import io.github.haykam821.lastcard.game.player.AbstractPlayerEntry;
 import io.github.haykam821.lastcard.game.player.PlayerEntry;
 import io.github.haykam821.lastcard.game.player.VirtualPlayerEntry;
 import io.github.haykam821.lastcard.turn.TurnManager;
+import io.github.haykam821.lastcard.util.PlaySound;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.scores.Team;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,6 +56,8 @@ import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockUseEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDamageEvent;
 import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
+
+import static io.github.haykam821.lastcard.util.PlaySound.PLAY_CARD_ID;
 
 public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvents.Destroy, GameActivityEvents.Enable, GameActivityEvents.Tick, GamePlayerEvents.Accept, PlayerDamageEvent, PlayerDeathEvent, GamePlayerEvents.Remove, BlockUseEvent {
 	private static final GameTeamKey PLAYERS_KEY = new GameTeamKey("players");
@@ -323,6 +329,9 @@ public class LastCardActivePhase implements PlayerEntryGetter, GameActivityEvent
 	private void endWithMessage(Component message) {
 		this.sendMessage(message);
 		this.ticksUntilClose = this.config.getTicksUntilClose().sample(this.level.getRandom());
+		for (AbstractPlayerEntry playerEntry : this.players) {
+			PlaySound.playSound(playerEntry.getPlayer(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1, 1);
+		}
 	}
 
 	public boolean isGameEnding() {

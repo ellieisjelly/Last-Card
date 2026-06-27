@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 public class PlaySound {
     public static final Identifier PLAY_CARD_ID = Main.identifier("play_card");
     public static final Identifier DRAW_CARD_ID = Main.identifier("draw_card");
+    public static final Identifier TURN_SKIPPED_ID = Main.identifier("turn_skipped");
 
     public static void playSound(ServerPlayer player, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent> soundEvent, SoundSource category, float volume, float pitch) {
         if (player != null) {

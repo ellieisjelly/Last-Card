@@ -10,5 +10,10 @@
     "sounds": [
       "lastcard:play_card"
     ]
+  },
+  "turn_skipped": {
+    "sounds": [
+      "lastcard:turn_skipped"
+    ]
   }
 }

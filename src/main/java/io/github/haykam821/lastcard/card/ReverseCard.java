@@ -6,8 +6,11 @@ import io.github.haykam821.lastcard.card.color.ColorSelector;
 import io.github.haykam821.lastcard.card.display.CardTemplates;
 import io.github.haykam821.lastcard.game.player.AbstractPlayerEntry;
 import io.github.haykam821.lastcard.turn.TurnDirection;
+import io.github.haykam821.lastcard.util.PlaySound;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
 public class ReverseCard extends SymbolCard {
 	public ReverseCard(ColorSelector selector) {
